@@ -2,7 +2,9 @@
 Decision Trees Task Code by Roman Mutel & Marko Ruzak
 """
 
+from sklearn.datasets import load_iris
 
+iris = load_iris()
 
 class Node:
     def __init__(self, X, y, gini):
@@ -31,7 +33,21 @@ class MyDecisionTreeClassifier:
         (for a 2 class problem).
         """
 
-        pass
+        entries = sum([len(group) for group in groups]) # 150 for our iris dataset
+        gini_value = 0
+
+        for group in groups:
+            local_gini = 1
+            group_entries = len(group)
+            if group_entries == 0:
+                continue
+
+            for flower in classes:
+                # each row contains 4 float numbers as first item and flower class as second item (so we have to take entry[-1])
+                local_gini -= ([entry[-1] for entry in group].count(flower) / group_entries) ** 2
+            gini_value += local_gini * group_entries / entries
+
+        return gini_value
     
     def split_data(self, X, y) -> 'tuple[int, int]':
         """
@@ -51,6 +67,9 @@ class MyDecisionTreeClassifier:
             # test all the possible splits in O(N^2)
             # return index and threshold value
         best_gini = float("inf")
+        best_index = 0
+        best_row = 0
+        best_groups = []
 
         for index in range(len(X[0])):
             for for_value in X:
@@ -62,11 +81,17 @@ class MyDecisionTreeClassifier:
                         right.append((row, y[i]))
                 groups = [left, right]
 
-                gini = self.gini(groups, y)
-                if gini == 0:
+                gini_value = self.gini(groups, list(set(y)))
+                # print(gini_value)
+                if gini_value == 0:
                     return index, for_value[index]
-                if gini < best_gini:
-                    best_gini = gini
+                if gini_value < best_gini:
+                    best_gini = gini_value
+                    best_index = index
+                    best_value = for_value[index]
+                    best_groups = groups
+
+        return best_index, best_value, best_gini
 
     def build_tree(self, X, y, depth = 0):
         
@@ -91,3 +116,7 @@ class MyDecisionTreeClassifier:
         # note that X_test can be not only one example
         
         pass
+
+if __name__ == '__main__':
+    m_t = MyDecisionTreeClassifier(5)
+    print(m_t.split_data(iris.data[40:60], iris.target[40:60]))
