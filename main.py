@@ -3,8 +3,9 @@ Decision Trees Task Code by Roman Mutel & Marko Ruzak
 """
 
 from sklearn.datasets import load_iris
+from iris import iris
 
-iris = load_iris()
+# iris = load_iris()
 
 class Node:
     def __init__(self, X, y, gini):
@@ -28,9 +29,15 @@ class MyDecisionTreeClassifier:
         classes are in the two groups created by the split.
         
         A perfect separation results in a Gini score of 0,
-        whereas the worst case split that results in 50/50
-        classes in each group result in a Gini score of 0.5
-        (for a 2 class problem).
+        whereas the worst case split that results in 50/50/50
+        classes in each group result in a Gini score of 0.67
+
+        Args:
+            groups (list[list[array]]): left and right subgroups after split procedure
+            classes (list): classes ([0,1,2] for our iris dataset)
+
+        Returns:
+            float: gini value for given group (from 0 to 1)
         """
 
         entries = sum([len(group) for group in groups]) # 150 for our iris dataset
@@ -43,7 +50,8 @@ class MyDecisionTreeClassifier:
                 continue
 
             for flower in classes:
-                # each row contains 4 float numbers as first item and flower class as second item (so we have to take entry[-1])
+                # each row contains 4 float numbers as first item and flower class as second item 
+                # (so we have to take entry[-1])
                 local_gini -= ([entry[-1] for entry in group].count(flower) / group_entries) ** 2
             gini_value += local_gini * group_entries / entries
 
@@ -67,9 +75,6 @@ class MyDecisionTreeClassifier:
             # test all the possible splits in O(N^2)
             # return index and threshold value
         best_gini = float("inf")
-        best_index = 0
-        best_row = 0
-        best_groups = []
 
         for index in range(len(X[0])):
             for for_value in X:
@@ -84,14 +89,14 @@ class MyDecisionTreeClassifier:
                 gini_value = self.gini(groups, list(set(y)))
                 # print(gini_value)
                 if gini_value == 0:
-                    return index, for_value[index]
+                    return index, for_value[index], groups
                 if gini_value < best_gini:
                     best_gini = gini_value
                     best_index = index
                     best_value = for_value[index]
                     best_groups = groups
 
-        return best_index, best_value, best_gini
+        return best_index, best_value, best_groups
 
     def build_tree(self, X, y, depth = 0):
         
@@ -119,4 +124,4 @@ class MyDecisionTreeClassifier:
 
 if __name__ == '__main__':
     m_t = MyDecisionTreeClassifier(5)
-    print(m_t.split_data(iris.data[40:60], iris.target[40:60]))
+    print(m_t.split_data(iris[0], iris[1]))
