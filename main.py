@@ -55,11 +55,11 @@ class MyDecisionTreeClassifier:
         for index in range(len(X[0])):
             for for_value in X:
                 left, right = list(), list()
-                for row in X:
+                for i,row in enumerate(X):
                     if row[index] <= for_value[index]:
-                        left.append(row)
+                        left.append((row, y[i]))
                     else:
-                        right.append(row)
+                        right.append((row, y[i]))
                 groups = [left, right]
 
                 gini = self.gini(groups, y)
