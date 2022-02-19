@@ -16,11 +16,12 @@ class Node:
         self.threshold = 0  # число для порівняння
         self.left = None
         self.right = None
+        self.flower = None
 
 
 class MyDecisionTreeClassifier:
     
-    def __init__(self, max_depth):
+    def __init__(self, max_depth=20):
         self.max_depth = max_depth  # задавати максимальну висоту дерева.
     
     def gini(self, groups, classes):
@@ -40,7 +41,7 @@ class MyDecisionTreeClassifier:
             float: gini value for given group (from 0 to 1)
         """
 
-        entries = sum([len(group) for group in groups]) # 150 for our iris dataset
+        entries = sum([len(group) for group in groups]) # 150 for our iris dataset on first iter
         gini_value = 0
 
         for group in groups:
@@ -89,30 +90,41 @@ class MyDecisionTreeClassifier:
                 gini_value = self.gini(groups, list(set(y)))
                 # print(gini_value)
                 if gini_value == 0:
-                    return index, for_value[index], groups
+                    return index, for_value[index], gini_value, groups
                 if gini_value < best_gini:
                     best_gini = gini_value
                     best_index = index
                     best_value = for_value[index]
                     best_groups = groups
 
-        return best_index, best_value, best_groups
+        return best_index, best_value, best_gini, best_groups
 
     def build_tree(self, X, y, depth = 0):
-        
         # create a root node
-        
-        
         # recursively split until max depth is not exeeced
-        
-        pass
+
+        # continue splitting
+        best_index, best_value, best_gini, (left, right) = self.split_data(X, y)
+
+        if best_gini == 0  or depth == self.max_depth:
+            node = Node(X, y, 0)
+            node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
+            return
+
+        node = Node(X, y, best_gini)
+        node.feature_index = best_index
+        node.threshold = best_value
+        node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
+        node.left = self.build_tree(left, y[:len(left)], depth + 1)
+        node.right = self.build_tree(right, y[len(left):], depth + 1)
+
+        return node
+
     
     def fit(self, X, y):
-        
         # basically wrapper for build tree
-
-        # Sort X here before passing it to data split method!
-        pass
+        root = self.build_tree(X, y)
+        return root
     
     def predict(self, X_test):
         
@@ -124,4 +136,6 @@ class MyDecisionTreeClassifier:
 
 if __name__ == '__main__':
     m_t = MyDecisionTreeClassifier(5)
-    print(m_t.split_data(iris[0], iris[1]))
+    root = m_t.fit(iris[0], iris[1])
+    print(root.left)
+    # print(m_t.split_data(iris[0], iris[1]))
