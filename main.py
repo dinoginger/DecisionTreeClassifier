@@ -4,13 +4,12 @@ Decision Trees Task Code by Roman Mutel & Marko Ruzak
 
 
 class Node:
-    
     def __init__(self, X, y, gini):
-        self.X = X
-        self.y = y
-        self.gini = gini
-        self.feature_index = 0
-        self.threshold = 0
+        self.X = X  # всі 150 квіток -> 150 лістів з чотирма параметрами
+        self.y = y  # відповідно до Х, якого виду кожна квітка (1 або 2 або 3)
+        self.gini = gini  # потрібне для перевірки на листок (передається від батька)
+        self.feature_index = 0  # за якою ознакою порівнювали X[n][0 або 1, 2, 3...]
+        self.threshold = 0  # число для порівняння
         self.left = None
         self.right = None
 
