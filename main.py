@@ -20,8 +20,8 @@ class Node:
 
 
 class MyDecisionTreeClassifier:
-    
     def __init__(self, max_depth=20):
+        self.root = None
         self.max_depth = max_depth  # задавати максимальну висоту дерева.
     
     def gini(self, groups, classes):
@@ -129,16 +129,30 @@ class MyDecisionTreeClassifier:
 
     def fit(self, X, y):
         # basically wrapper for build tree
-        root = self.build_tree(X, y)
-        return root
-    
+        self.root = self.build_tree(X, y)
+        return
+
+    def predict_case(self, X_test):
+        node = self.root
+        while node.left:
+            if X_test[node.feature_index] < node.threshold:
+                node = node.left
+            else:
+                node = node.right
+        return node.flower
+
     def predict(self, X_test):
-        
+
         # traverse the tree while there is left node
         # and return the predicted class for it, 
         # note that X_test can be not only one example
-        
-        pass
+
+        if isinstance(X_test[0], float):
+            return self.predict_case(X_test)
+        y_test = list()
+        for element in X_test:
+            y_test.append(self.predict_case(element))
+        return y_test
 
 
 if __name__ == '__main__':
