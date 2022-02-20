@@ -104,6 +104,8 @@ class MyDecisionTreeClassifier:
 
         # continue splitting
         best_index, best_value, best_gini, (left, right) = self.split_data(X, y)
+        left_y = [entry[1] for entry in left]
+        right_y = [entry[1] for entry in right]
         left = [entry[0] for entry in left]
         right = [entry[0] for entry in right]
 
@@ -112,23 +114,25 @@ class MyDecisionTreeClassifier:
         # on the next split
         if (best_gini == 0 and len(set(y)) == 1) or depth == self.max_depth:
             node = Node(X, y, best_gini)
-            node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
-            print(f'Added leaf flower (class): {node.flower}, depth: {depth}, gini: {node.gini}, y: {[(flower, y.tolist().count(flower)) for flower in set(y)]}')
+            node.flower = max([(flower, y.count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
+            print(f'Added leaf flower (class): {node.flower}, depth: {depth}, gini: {node.gini}, y: {[(flower, y.count(flower)) for flower in set(y)]}')
             return node
 
         node = Node(X, y, best_gini)
         node.feature_index = best_index
         node.threshold = best_value
-        node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
-        node.left = self.build_tree(left, y[:len(left)], depth + 1)
-        node.right = self.build_tree(right, y[len(left):], depth + 1)
+        node.flower = max([(flower, y.count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
+        node.left = self.build_tree(left, left_y, depth + 1)
+        node.right = self.build_tree(right, right_y, depth + 1)
 
         print(f'Added node feature index:{node.feature_index}, threshold: {node.threshold}, flower (class): {node.flower}, gini: {node.gini}, depth: {depth}')
-        print(f'y: {[(flower, y.tolist().count(flower)) for flower in set(y)]}')
+        print(f'y: {[(flower, y.count(flower)) for flower in set(y)]}')
         return node
 
     def fit(self, X, y):
         # basically wrapper for build tree
+        X = X.tolist()
+        y = y.tolist()
         self.root = self.build_tree(X, y)
         return
 
@@ -158,5 +162,4 @@ class MyDecisionTreeClassifier:
 if __name__ == '__main__':
     m_t = MyDecisionTreeClassifier(7)
     root = m_t.fit(iris[0], iris[1])
-    print(root.gini)
     # print(m_t.split_data(iris[0], iris[1]))
