@@ -108,6 +108,8 @@ class MyDecisionTreeClassifier:
         right = [entry[0] for entry in right]
 
         # 'and len(set(y)) == 1' fixed the problem with gini = 0 when there are still two types of flower
+        # if gini == 0, it either means that we already separated all the flowers or we can separate them
+        # on the next split
         if (best_gini == 0 and len(set(y)) == 1) or depth == self.max_depth:
             node = Node(X, y, best_gini)
             node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
