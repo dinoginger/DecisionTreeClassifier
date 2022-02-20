@@ -4,6 +4,7 @@ Decision Trees Task Code by Roman Mutel & Marko Ruzak
 
 from iris import iris
 from numpy import array
+from sklearn.model_selection import train_test_split
 
 # iris = load_iris()
 
@@ -160,6 +161,14 @@ class MyDecisionTreeClassifier:
 
 
 if __name__ == '__main__':
-    m_t = MyDecisionTreeClassifier(7)
-    root = m_t.fit(iris[0], iris[1])
-    # print(m_t.split_data(iris[0], iris[1]))
+    m_t = MyDecisionTreeClassifier(10)
+    X, y = iris[0], iris[1]
+    X, X_test, y, y_test = train_test_split(X, y, test_size= 0.20)
+    root = m_t.fit(X, y)
+    print('Generated flowers')
+    print(y_test.tolist())
+    print('Predicted flowers')
+    predictions = m_t.predict(X_test)
+    print(predictions)
+    print('Model Accuracy is: ')
+    print(sum(predictions == y_test) / len(y_test))
