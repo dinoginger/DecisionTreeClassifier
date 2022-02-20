@@ -2,8 +2,8 @@
 Decision Trees Task Code by Roman Mutel & Marko Ruzak
 """
 
-from iris import iris
 from numpy import array
+from iris import iris
 
 # iris = load_iris()
 
@@ -76,14 +76,16 @@ class MyDecisionTreeClassifier:
             # test all the possible splits in O(N^2)
             # return index and threshold value
         best_gini = float("inf")
-        for index in range(len(X[0])):
+        X = list(zip(X, y))
+        for index in range(len(X[0][0])):  # оскільки Х[0] - ([float,float,float,float], int)
+            X.sort(key=lambda x: x[0][index])
             for for_value in X:
                 left, right = list(), list()
-                for i,row in enumerate(X):
-                    if row[index] <= for_value[index]:
-                        left.append((row, y[i]))
+                for row in X:
+                    if row[0][index] <= for_value[0][index]:
+                        left.append(row)
                     else:
-                        right.append((row, y[i]))
+                        right.append(row)
                 groups = [left, right]
 
                 gini_value = self.gini(groups, list(set(y)))
@@ -93,7 +95,7 @@ class MyDecisionTreeClassifier:
                 if gini_value < best_gini:
                     best_gini = gini_value
                     best_index = index
-                    best_value = for_value[index]
+                    best_value = for_value[0][index]
                     best_groups = groups
 
         return best_index, best_value, best_gini, best_groups
@@ -112,19 +114,19 @@ class MyDecisionTreeClassifier:
         # on the next split
         if (best_gini == 0 and len(set(y)) == 1) or depth == self.max_depth:
             node = Node(X, y, best_gini)
-            node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
-            print(f'Added leaf flower (class): {node.flower}, depth: {depth}, gini: {node.gini}, y: {[(flower, y.tolist().count(flower)) for flower in set(y)]}')
+            node.flower = max([(flower, y.count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
+            print(f'Added leaf flower (class): {node.flower}, depth: {depth}, gini: {node.gini}, y: {[(flower, y.count(flower)) for flower in set(y)]}')
             return node
 
         node = Node(X, y, best_gini)
         node.feature_index = best_index
         node.threshold = best_value
-        node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
-        node.left = self.build_tree(left, y[:len(left)], depth + 1)
-        node.right = self.build_tree(right, y[len(left):], depth + 1)
+        node.flower = max([(flower, y.count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
+        node.left = self.build_tree(left, [entry[1] for entry in left], depth + 1)
+        node.right = self.build_tree(right, [entry[1] for entry in right], depth + 1)
 
         print(f'Added node feature index:{node.feature_index}, threshold: {node.threshold}, flower (class): {node.flower}, gini: {node.gini}, depth: {depth}')
-        print(f'y: {[(flower, y.tolist().count(flower)) for flower in set(y)]}')
+        print(f'y: {[(flower, node.y.count(flower)) for flower in set(y)]}')
         return node
 
     def fit(self, X, y):
@@ -135,7 +137,7 @@ class MyDecisionTreeClassifier:
     def predict_case(self, X_test):
         node = self.root
         while node.left:
-            if X_test[node.feature_index] < node.threshold:
+            if X_test[node.feature_index] <= node.threshold:
                 node = node.left
             else:
                 node = node.right
@@ -156,7 +158,23 @@ class MyDecisionTreeClassifier:
 
 
 if __name__ == '__main__':
+    iris = iris
     m_t = MyDecisionTreeClassifier(7)
-    root = m_t.fit(iris[0], iris[1])
-    print(root.gini)
+    y = iris[1].tolist()
+    m_t.fit(iris[0].tolist(), iris[1].tolist())
+
+
+    # iris = load_iris()
+    # X, y = iris.data, iris.target
+    #
+    # m_t = MyDecisionTreeClassifier(7)
+    # X, X_test, y, y_test = train_test_split(X, y, test_size=0.20)
+    # m_t.fit(X, y)
+
+    # predictions = m_t.predict(X_test)
+    # print(sum(predictions == y_test) / len(y_test))
+
+
+    # print(m_t.predict(iris[0][69]))
+    # print(iris[0][69], iris[1][69])
     # print(m_t.split_data(iris[0], iris[1]))
