@@ -5,8 +5,7 @@ Decision Trees Task Code by Roman Mutel & Marko Ruzak
 from iris import iris
 from numpy import array
 from sklearn.model_selection import train_test_split
-
-# iris = load_iris()
+from sklearn.datasets import load_iris
 
 class Node:
     def __init__(self, X, y, gini):
@@ -116,7 +115,7 @@ class MyDecisionTreeClassifier:
         if (best_gini == 0 and len(set(y)) == 1) or depth == self.max_depth:
             node = Node(X, y, best_gini)
             node.flower = max([(flower, y.count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
-            print(f'Added leaf flower (class): {node.flower}, depth: {depth}, gini: {node.gini}, y: {[(flower, y.count(flower)) for flower in set(y)]}')
+            # print(f'Added leaf flower (class): {node.flower}, depth: {depth}, gini: {node.gini}, y: {[(flower, y.count(flower)) for flower in set(y)]}')
             return node
 
         node = Node(X, y, best_gini)
@@ -126,8 +125,8 @@ class MyDecisionTreeClassifier:
         node.left = self.build_tree(left, left_y, depth + 1)
         node.right = self.build_tree(right, right_y, depth + 1)
 
-        print(f'Added node feature index:{node.feature_index}, threshold: {node.threshold}, flower (class): {node.flower}, gini: {node.gini}, depth: {depth}')
-        print(f'y: {[(flower, y.count(flower)) for flower in set(y)]}')
+        # print(f'Added node feature index:{node.feature_index}, threshold: {node.threshold}, flower (class): {node.flower}, gini: {node.gini}, depth: {depth}')
+        # print(f'y: {[(flower, y.count(flower)) for flower in set(y)]}')
         return node
 
     def fit(self, X, y):
@@ -161,8 +160,9 @@ class MyDecisionTreeClassifier:
 
 
 if __name__ == '__main__':
+    iris = load_iris()
     m_t = MyDecisionTreeClassifier(10)
-    X, y = iris[0], iris[1]
+    X, y = iris.data, iris.target
     X, X_test, y, y_test = train_test_split(X, y, test_size= 0.20)
     root = m_t.fit(X, y)
     print('Generated flowers')
