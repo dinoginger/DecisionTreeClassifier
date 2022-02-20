@@ -3,6 +3,7 @@ Decision Trees Task Code by Roman Mutel & Marko Ruzak
 """
 
 from iris import iris
+from numpy import array
 
 # iris = load_iris()
 
@@ -97,7 +98,7 @@ class MyDecisionTreeClassifier:
 
         return best_index, best_value, best_gini, best_groups
 
-    def build_tree(self, X, y, depth = 0):
+    def build_tree(self, X, y, depth = 0, terminal = False):
         # create a root node
         # recursively split until max depth is not exeeced
 
@@ -106,10 +107,11 @@ class MyDecisionTreeClassifier:
         left = [entry[0] for entry in left]
         right = [entry[0] for entry in right]
 
-        if best_gini == 0 or depth == self.max_depth:
-            node = Node(X, y, 0)
+        # 'and len(set(y)) == 1' fixed the problem with gini = 0 when there are still two types of flower
+        if (best_gini == 0 and len(set(y)) == 1) or depth == self.max_depth:
+            node = Node(X, y, best_gini)
             node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
-            print(f'Added leaf flower (class): {node.flower}, depth: {depth}')
+            print(f'Added leaf flower (class): {node.flower}, depth: {depth}, gini: {node.gini}, y: {[(flower, y.tolist().count(flower)) for flower in set(y)]}')
             return node
 
         node = Node(X, y, best_gini)
@@ -120,6 +122,7 @@ class MyDecisionTreeClassifier:
         node.right = self.build_tree(right, y[len(left):], depth + 1)
 
         print(f'Added node feature index:{node.feature_index}, threshold: {node.threshold}, flower (class): {node.flower}, gini: {node.gini}, depth: {depth}')
+        print(f'y: {[(flower, y.tolist().count(flower)) for flower in set(y)]}')
         return node
 
     def fit(self, X, y):
@@ -137,7 +140,7 @@ class MyDecisionTreeClassifier:
 
 
 if __name__ == '__main__':
-    m_t = MyDecisionTreeClassifier(5)
+    m_t = MyDecisionTreeClassifier(7)
     root = m_t.fit(iris[0], iris[1])
-    print(root.left)
+    print(root.gini)
     # print(m_t.split_data(iris[0], iris[1]))
