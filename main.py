@@ -2,7 +2,6 @@
 Decision Trees Task Code by Roman Mutel & Marko Ruzak
 """
 
-from sklearn.datasets import load_iris
 from iris import iris
 
 # iris = load_iris()
@@ -76,7 +75,6 @@ class MyDecisionTreeClassifier:
             # test all the possible splits in O(N^2)
             # return index and threshold value
         best_gini = float("inf")
-
         for index in range(len(X[0])):
             for for_value in X:
                 left, right = list(), list()
@@ -108,10 +106,10 @@ class MyDecisionTreeClassifier:
         left = [entry[0] for entry in left]
         right = [entry[0] for entry in right]
 
-        if best_gini == 0  or depth == self.max_depth:
+        if best_gini == 0 or depth == self.max_depth:
             node = Node(X, y, 0)
             node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
-            return
+            return node
 
         node = Node(X, y, best_gini)
         node.feature_index = best_index
@@ -122,7 +120,6 @@ class MyDecisionTreeClassifier:
 
         return node
 
-    
     def fit(self, X, y):
         # basically wrapper for build tree
         root = self.build_tree(X, y)
@@ -136,8 +133,9 @@ class MyDecisionTreeClassifier:
         
         pass
 
+
 if __name__ == '__main__':
     m_t = MyDecisionTreeClassifier(5)
     root = m_t.fit(iris[0], iris[1])
-    print(root.right.gini)
+    print(root.left)
     # print(m_t.split_data(iris[0], iris[1]))
