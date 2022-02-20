@@ -105,6 +105,8 @@ class MyDecisionTreeClassifier:
 
         # continue splitting
         best_index, best_value, best_gini, (left, right) = self.split_data(X, y)
+        left = [entry[0] for entry in left]
+        right = [entry[0] for entry in right]
 
         if best_gini == 0  or depth == self.max_depth:
             node = Node(X, y, 0)
@@ -137,5 +139,5 @@ class MyDecisionTreeClassifier:
 if __name__ == '__main__':
     m_t = MyDecisionTreeClassifier(5)
     root = m_t.fit(iris[0], iris[1])
-    print(root.left)
+    print(root.right.gini)
     # print(m_t.split_data(iris[0], iris[1]))
