@@ -109,6 +109,7 @@ class MyDecisionTreeClassifier:
         if best_gini == 0 or depth == self.max_depth:
             node = Node(X, y, 0)
             node.flower = max([(flower, y.tolist().count(flower)) for flower in set(y)], key=lambda x:x[1])[0]
+            print(f'Added leaf {node.flower, depth}')
             return node
 
         node = Node(X, y, best_gini)
@@ -118,6 +119,7 @@ class MyDecisionTreeClassifier:
         node.left = self.build_tree(left, y[:len(left)], depth + 1)
         node.right = self.build_tree(right, y[len(left):], depth + 1)
 
+        print(f'Added node {node.feature_index, node.threshold, node.flower, node.gini, depth}')
         return node
 
     def fit(self, X, y):
